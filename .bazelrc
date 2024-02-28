@@ -1,0 +1,93 @@
+# --- https://github.com/buildbuddy-io/buildbuddy/blob/master/.bazelrc ---
+
+common --noenable_bzlmod
+
+common --enable_platform_specific_config=true
+
+common --build_metadata=DISABLE_TARGET_TRACKING=true
+
+# Skymeld merges the analysis phase and execution phase.
+# This allows build and test executions to start before the analysis phase finishes,
+# thus speeding up the build overall .
+common --experimental_merged_skyframe_analysis_execution
+
+# Build with --config=cache to send build logs to the production server with cache
+common:cache --bes_results_url=https://paxos.buildbuddy.io/invocation/
+common:cache --bes_backend=grpcs://paxos.buildbuddy.io
+common:cache --remote_cache=grpcs://paxos.buildbuddy.io
+common:cache --remote_upload_local_results
+common:cache --experimental_remote_cache_compression
+
+# Flags shared across remote configs
+common:remote-shared --remote_upload_local_results
+common:remote-shared --remote_timeout=600
+common:remote-shared --remote_download_minimal
+common:remote-shared --jobs=100
+common:remote-shared --verbose_failures
+common:remote-shared --platforms=@buildbuddy_toolchain//:platform_linux
+common:remote-shared --host_platform=@buildbuddy_toolchain//:platform_linux
+common:remote-shared --crosstool_top=@buildbuddy_toolchain//:ubuntu_cc_toolchain_suite
+common:remote-shared --extra_toolchains=@buildbuddy_toolchain//:ubuntu_cc_toolchain
+
+common --incompatible_enable_cc_toolchain_resolution
+
+# Build with --config=remote to use BuildBuddy RBE.
+common:remote --config=remote-shared
+common:remote --config=cache
+common:remote --remote_executor=grpcs://paxos.buildbuddy.io
+common:remote --experimental_split_coverage_postprocessing
+common:remote --experimental_fetch_all_coverage_outputs
+
+common:remote-target-linux --config=remote
+common:remote-target-linux --cpu=k8
+common:remote-target-linux --host_cpu=k8
+
+# Configuration used for all BuildBuddy workflows
+common:workflows --config=remote
+common:workflows --build_metadata=ROLE=CI
+common:workflows --color=yes
+
+# Use a static PATH variable to prevent unnecessary rebuilds of dependencies like protobuf.
+common --incompatible_strict_action_env
+common:macos --action_env=DEVELOPER_DIR
+common:macos --host_action_env=DEVELOPER_DIR
+
+# Write build outputs in a platform-specific directory,
+# avoid outputs being wiped and rewritten when switching between platforms.
+common --experimental_platform_in_output_dir
+
+# Add `-test.v` to all Go tests so that each test func is reported as a separate test case
+# in the XML output.  This allows our webUI to display the run time of each test case
+# separately and let us know which tests is slow.
+common --test_env=GO_TEST_WRAP_TESTV=1
+
+# Use C++17 standard for all C++ compilation
+common:linux --host_cxxopt=-std=c++17
+common:linux --cxxopt=-std=c++17
+common:macos --host_cxxopt=-std=c++17
+common:macos --cxxopt=-std=c++17
+common:windows --host_cxxopt=/std:c++17
+common:windows --cxxopt=/std:c++17
+
+# Ensure that we don't use the apple_support cc_toolchain
+common:macos --repo_env=BAZEL_NO_APPLE_CPP_TOOLCHAIN=1
+
+# Use BLAKE3 digest function.
+startup --digest_function=BLAKE3
+
+# Include target names in timing profile so it's clickable.
+common --experimental_profile_include_target_label
+# Include primary output name in timing profile.
+common --experimental_profile_include_primary_output
+# Don't merge timing profile actions.
+common --noslim_profile
+
+# Misc remote cache/BES optimizations
+common --experimental_remote_cache_async
+common --remote_build_event_upload=minimal
+common --nolegacy_important_outputs
+
+# Try importing a user specific .bazelrc
+# You can create your own by copying and editing the template-user.bazelrc template:
+# cp template-user.bazelrc user.bazelrc
+try-import %workspace%/user.bazelrc

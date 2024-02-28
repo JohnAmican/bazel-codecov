@@ -1,7 +1,5 @@
 "Implementation details for the push rule"
 
-load("//oci/private:util.bzl", "util")
-
 _DOC = """Push an oci_image or oci_image_index to a remote registry.
 
 Internal rule used by the [oci_push macro](/docs/push.md#oci_push).
