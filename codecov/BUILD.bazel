@@ -1,29 +1,6 @@
-load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+load("@rules_python//python:defs.bzl", "py_binary")
 
-# These are the targets rule authors should put in their "toolchains"
-# attribute in order to get a codecov executable for the correct platform.
-# See https://docs.bazel.build/versions/main/toolchains.html#writing-rules-that-use-toolchains
-toolchain_type(
-    name = "codecov_toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
-toolchain_type(
-    name = "registry_toolchain_type",
-    visibility = ["//visibility:public"],
-)
-
-bzl_library(
-    name = "repositories",
-    srcs = ["repositories.bzl"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//codecov/private:toolchains_repo",
-    ],
-)
-
-bzl_library(
-    name = "toolchain",
-    srcs = ["toolchain.bzl"],
-    visibility = ["//visibility:public"],
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
 )
