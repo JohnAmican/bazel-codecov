@@ -1,6 +1,6 @@
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
-# gazelle:prefix github.com/JohnAmican/rules_codecov
+# gazelle:prefix github.com/JohnAmican/bazel-codecov
 gazelle(name = "gazelle")
 
 gazelle(
@@ -21,4 +21,13 @@ compile_pip_requirements(
     src = "requirements.in",
     requirements_txt = "requirements_lock.txt",
     requirements_windows = "requirements_windows.txt",
+)
+
+exports_files(["herpderp.txt"])
+
+filegroup(
+    name = "test_reports",
+    srcs = glob(["bazel-testlogs/**/coverage.dat"]),  # Created manually
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
 )

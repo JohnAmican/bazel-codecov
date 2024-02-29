@@ -1,8 +1,6 @@
-module github.com/JohnAmican/rules_codecov
+module github.com/JohnAmican/bazel-codecov
 
-go 1.21.1
-
-toolchain go1.22.0
+go 1.21.7
 
 require (
 	github.com/bazelbuild/rules_go v0.46.0 // indirect

@@ -1,33 +1,64 @@
 package main
 
 import (
-	"github.com/bazelbuild/rules_go/go/tools/bazel"
+	"fmt"
+	"github.com/bazelbuild/rules_go/go/runfiles"
 	"github.com/davecgh/go-spew/spew"
+	"io/fs"
 	"os/exec"
+	"path"
+	"path/filepath"
+	"strings"
 )
 
 func main() {
-	println("hello world")
-	runfiles, err := bazel.ListRunfiles()
+	printRunfilesEnv()
+}
+
+func printRunfilesEnv() {
+	kvs, err := runfiles.Env()
 	if err != nil {
 		panic(err)
 	}
-	var i int
-	var cli string
-	for _, runfile := range runfiles {
-		if runfile.ShortPath == "rules_python_wheel_entry_point_codecovcli" {
-			cli = runfile.Path
-			i += 1
+	for _, kv := range kvs {
+		if k, v, found := strings.Cut(kv, "="); found {
+			switch k {
+			case "RUNFILES_DIR":
+				println("runfiles:")
+				err = filepath.WalkDir(v, func(path string, d fs.DirEntry, err error) error {
+					//if strings.HasSuffix(path, "coverage.dat") {
+					if strings.Contains(path, ".dat") {
+						println(path)
+					}
+					//}
+					return nil
+				})
+			default:
+				println(fmt.Sprintf("%s=%s", k, v))
+			}
 		}
 	}
-	if cli == "" {
-		panic("no bin")
+	if err != nil {
+		panic(err)
 	}
-	if i > 1 {
-		panic("multiple bins")
+}
+
+func do() {
+	cli, err := codecovCliFromDefaultNaming()
+	if err != nil {
+		panic(err)
 	}
 	cmd := exec.Command(cli, "--help")
 	bytes, err := cmd.CombinedOutput()
 	println(string(bytes))
 	spew.Dump(err)
+}
+
+// codecovCli returns an absolute path to the codecov-cli tool
+func codecovCli(repo, name string) (string, error) {
+	return runfiles.Rlocation(path.Join(repo, name))
+}
+
+func codecovCliFromDefaultNaming() (string, error) {
+	return codecovCli("pypi_codecov_cli", "rules_python_wheel_entry_point_codecovcli")
 }
