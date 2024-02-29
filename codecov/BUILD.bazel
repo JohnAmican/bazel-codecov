@@ -22,4 +22,8 @@ go_binary(
     ],
     embed = [":codecov_lib"],
     visibility = ["//visibility:public"],
+    x_defs = {
+        "cliPkg": "pypi_codecov_cli",
+        "cliName": "rules_python_wheel_entry_point_codecovcli",
+    },
 )

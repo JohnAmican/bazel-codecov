@@ -11,8 +11,11 @@ import (
 	"strings"
 )
 
+var cliPkg, cliName string
+
 func main() {
 	printRunfilesEnv()
+	do()
 }
 
 func printRunfilesEnv() {
@@ -44,7 +47,7 @@ func printRunfilesEnv() {
 }
 
 func do() {
-	cli, err := codecovCliFromDefaultNaming()
+	cli, err := codecovCliFromBazel()
 	if err != nil {
 		panic(err)
 	}
@@ -55,10 +58,10 @@ func do() {
 }
 
 // codecovCli returns an absolute path to the codecov-cli tool
-func codecovCli(repo, name string) (string, error) {
-	return runfiles.Rlocation(path.Join(repo, name))
+func codecovCli(pkg, name string) (string, error) {
+	return runfiles.Rlocation(path.Join(pkg, name))
 }
 
-func codecovCliFromDefaultNaming() (string, error) {
-	return codecovCli("pypi_codecov_cli", "rules_python_wheel_entry_point_codecovcli")
+func codecovCliFromBazel() (string, error) {
+	return codecovCli(cliPkg, cliName)
 }
