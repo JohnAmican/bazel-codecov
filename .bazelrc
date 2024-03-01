@@ -87,6 +87,9 @@ common --experimental_remote_cache_async
 common --remote_build_event_upload=minimal
 common --nolegacy_important_outputs
 
+test --test_output=all
+test --test_summary=detailed
+
 # Try importing a user specific .bazelrc
 # You can create your own by copying and editing the template-user.bazelrc template:
 # cp template-user.bazelrc user.bazelrc

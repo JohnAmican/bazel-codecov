@@ -1,4 +1,4 @@
-package main
+package codecov
 
 import (
 	"github.com/bazelbuild/rules_go/go/runfiles"
@@ -9,20 +9,21 @@ import (
 
 var cliPkg, cliName string
 
-func main() {
-	printRunfilesEnv()
-	do()
-}
-
-func do() {
+func run(args ...string) error {
+	spew.Dump("hello")
 	cli, err := codecovCliFromBazel()
 	if err != nil {
 		panic(err)
 	}
-	cmd := exec.Command(cli, "--help")
+	cmd := exec.Command(cli, args...)
 	bytes, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
 	println(string(bytes))
 	spew.Dump(err)
+	spew.Dump("done")
+	return nil
 }
 
 // codecovCli returns an absolute path to the codecov-cli tool
