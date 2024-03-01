@@ -1,8 +1,18 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("//codecov:def.bzl", "codecov_cli")
+
+#codecov_rule(
+#    name = "my_codecov_rule",
+#    cli = "@pypi_codecov_cli//:rules_python_wheel_entry_point_codecovcli",
+#    coverage_files = ["//:coverage_reports"],
+#)
 
 go_library(
     name = "codecov_lib",
-    srcs = ["main.go"],
+    srcs = [
+        "debug.go",
+        "main.go",
+    ],
     data = [
         "@pypi_codecov_cli//:rules_python_wheel_entry_point_codecovcli",
     ],
@@ -17,7 +27,6 @@ go_library(
 go_binary(
     name = "codecov",
     data = [
-        "//:herpderp.txt",
         "//:test_reports",
     ],
     embed = [":codecov_lib"],

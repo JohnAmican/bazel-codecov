@@ -23,10 +23,8 @@ compile_pip_requirements(
     requirements_windows = "requirements_windows.txt",
 )
 
-exports_files(["herpderp.txt"])
-
 filegroup(
-    name = "test_reports",
+    name = "coverage_reports",
     srcs = glob(["bazel-testlogs/**/coverage.dat"]),  # Created manually
     tags = ["manual"],
     visibility = ["//visibility:public"],
