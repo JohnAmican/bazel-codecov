@@ -2,35 +2,32 @@ package codecov
 
 import (
 	"github.com/bazelbuild/rules_go/go/runfiles"
-	"github.com/davecgh/go-spew/spew"
+	"os"
 	"os/exec"
 	"path"
 )
 
 var cliPkg, cliName string
 
-func run(args ...string) error {
-	spew.Dump("hello")
-	cli, err := codecovCliFromBazel()
-	if err != nil {
-		panic(err)
-	}
-	cmd := exec.Command(cli, args...)
-	bytes, err := cmd.CombinedOutput()
-	if err != nil {
+func localUpload() error {
+	if err := run("create-commit"); err != nil {
 		return err
 	}
-	println(string(bytes))
-	spew.Dump(err)
-	spew.Dump("done")
 	return nil
 }
 
-// codecovCli returns an absolute path to the codecov-cli tool
-func codecovCli(pkg, name string) (string, error) {
-	return runfiles.Rlocation(path.Join(pkg, name))
+func run(args ...string) error {
+	cli, err := bin()
+	if err != nil {
+		return err
+	}
+	cmd := exec.Command(cli, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	return err
 }
 
-func codecovCliFromBazel() (string, error) {
-	return codecovCli(cliPkg, cliName)
+func bin() (string, error) {
+	return runfiles.Rlocation(path.Join(cliPkg, cliName))
 }
