@@ -1,22 +1,27 @@
 package codecov
 
-import "testing"
+import (
+	"github.com/bazelbuild/rules_go/go/tools/bazel"
+	"testing"
+)
 
 func TestRun(t *testing.T) {
-	const code = "foobar"
-	if err := run("create-commit"); err != nil {
+	dir, err := bazel.NewTmpDir("whocares")
+	if err != nil {
 		t.Fatal(err)
 	}
-	if err := run("create-report", "--code", code); err != nil {
-		t.Fatal(err)
-	}
-	if err := run("do-upload", "--report-code", code); err != nil {
-		t.Fatal(err)
-	}
-	if err := run("create-report-results", "--code", code); err != nil {
-		t.Fatal(err)
-	}
-	if err := run("get-report-results", "--code", code); err != nil {
+	println("okokokoko")
+	println(dir)
+	println("okokokoko")
+	if err = run(
+		"--help",
+		"--verbose",
+		"upload-process",
+		"--fail-on-error",
+		"-C", "c1d4af790b8d735224fc7f190cbbdcc99a71462c",
+		"--disable-search",
+		"-f", "herpderp.dat",
+	); err != nil {
 		t.Fatal(err)
 	}
 }

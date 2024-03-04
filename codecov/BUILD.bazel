@@ -1,20 +1,11 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
-load("//codecov:def.bzl", "codecov_cli")
-
-#codecov_rule(
-#    name = "my_codecov_rule",
-#    cli = "@pypi_codecov_cli//:rules_python_wheel_entry_point_codecovcli",
-#    coverage_files = ["//:coverage_reports"],
-#)
+load("@pypi//:requirements.bzl", "entry_point")
 
 go_library(
     name = "codecov",
     srcs = [
         "cli.go",
         "reports.go",
-    ],
-    data = [
-        "@pypi_codecov_cli//:rules_python_wheel_entry_point_codecovcli",
     ],
     importpath = "github.com/JohnAmican/bazel-codecov/codecov",
     visibility = ["//visibility:private"],
@@ -29,13 +20,14 @@ go_test(
     ],
     data = [
         "//:coverage_reports",
+        entry_point("codecov_cli", "codecovcli"),
     ],
     embed = [":codecov"],
     x_defs = {
         #        "cli": "@pypi_codecov_cli//:rules_python_wheel_entry_point_codecovcli",
-        "cliPkg": "pypi_codecov_cli",
-        "cliName": "rules_python_wheel_entry_point_codecovcli",
+        "cliEntryPoint": entry_point("codecov_cli", "codecovcli"),
     },
+    deps = ["@io_bazel_rules_go//go/tools/bazel:go_default_library"],
 )
 
 #go_binary(
